@@ -14,6 +14,7 @@ getPackages() {
     apt dist-upgrade -y 
 
     apt-get install \
+    git \
     tmux \
     vim \
     zsh \
@@ -26,12 +27,20 @@ getPackages() {
 }
 
 getZsh() {
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    git clone https://github.com/robbyrussell/oh-my-zsh.git ${HOME}/.oh-my-zsh
+    cp ${HOME}/.oh-my-zsh/templates/zshrc.zsh-template ${HOME}/.zshrc
+    chsh -s ${PREFIX}/bin/zsh ${USER}
+}
+
+getZshGoodies() {
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${HOME}/.oh-my-zsh/plugins/zsh-syntax-highlighting" --depth 1
     git clone https://github.com/zsh-users/zsh-completions.git "${HOME}/.oh-my-zsh/plugins/zsh-completions" --depth 1
     git clone https://github.com/zsh-users/zsh-autosuggestions.git "${HOME}/.oh-my-zsh/plugins/zsh-autosuggestions/" --depth 1
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
     sed -i -e "71s/[^[]*/plugins=(git zsh-syntax-highlighting zsh-completions zsh-autosuggestions)/g" ${HOME}/.zshrc
+}
+
+getPowerlevel10k() {
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
     sed -i -e "11s/[^[]*/ZSH_THEME=\"powerlevel10k\/powerlevel10k\"/g" ${HOME}/.zshrc
 }
 
@@ -68,6 +77,28 @@ then
 else 
     procMsg "Oh-My-Zsh OK!"
 fi
+
+if ! [ -d ~/.oh-my-zsh/plugins/zsh-syntax-highlighting ] \
+|| ! [ -d ~/.oh-my-zsh/plugins/zsh-completions ] \
+|| ! [ -d ~/.oh-my-zsh/plugins/zsh-autosuggestions ] 
+then 
+    alarmMsg "Zsh goodies aren't setup yet"
+    procMsg "Setting up Zsh goodies"
+    getZshGoodies
+else 
+    procMsg "Zsh goodies OK!"
+fi
+
+
+if ! [ `grep "powerlevel10k" ~/.zshrc` ]
+then
+    alarmMsg "Powerlevel10k isn't setup yet"
+    procMsg "Setting up Powerlevel10k"
+    getPowerlevel10k
+else 
+    procMsg "Powerlevel10k OK!"
+fi
+
 
 if ! [ -d ~/.vim_runtime ]
 then
