@@ -48,12 +48,12 @@ getRepos() {
 
     cd ~/git/
 
-    for ((i=1 ; i<=${#repos} ; i++))
+    for ((i=1 ; i<=${#repos[@]} ; i++))
     do
         echo "Checking github.com/ZalgoNoise/${repos[i]}"
-        if ! [ -d ~/git/${repos[i]} ]
+        if ! [ -d "${HOME}/git/${repos[i]}" ]
         then
-            git clone https://github.com/ZalgoNoise/${repos[i]} ~/git/${repos[i]}
+            git clone https://github.com/ZalgoNoise/${repos[i]} ${HOME}/git/${repos[i]}
         fi
 
     done
