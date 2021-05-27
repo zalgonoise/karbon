@@ -76,7 +76,8 @@ getPackages() {
     jq \
     nmap \
     golang \
-    bazel
+    bazel \
+    clang
 }
 
 getZsh() {
