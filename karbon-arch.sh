@@ -8,6 +8,61 @@ alarmMsg() {
     echo -e "\n!!! $1 !!!\n\n"
 }
 
+getRepos() {
+    if ! [ -f ~/.gitconfig ]
+    then
+        git config --global credential.helper store
+    fi
+
+    if ! [ -d ~/git ]
+    then
+        mkdir ~/git
+    fi
+
+    repos=(
+        "clitter-appsscript"
+        "gradius"
+        "gldap"
+        "gstunnel"
+        "gasp"
+        "goat"
+        "docker-nginx-vpn"
+        "karbon"
+        "fuzzydl"
+        "docker-openvpn"
+        "gapic"
+        "xurl"
+        "sysprobe"
+        "dumpt"
+        "doxi"
+        "alpine"
+        "gitd"
+        "rpi4-stack"
+        "sfq"
+        "labeld"
+        "goauth-web"
+        "goauth-cli"
+    )
+
+    curdir=`pwd`
+
+    cd ~/git/
+
+    for ((i=1 ; i<=${#repos} ; i++))
+    do
+        echo "Checking github.com/ZalgoNoise/${repos[i]}"
+        if ! [ -d ~/git/${repos[i]} ]
+        then
+            git clone https://github.com/ZalgoNoise/${repos[i]} ~/git/${repos[i]}
+        fi
+
+    done
+
+    cd $curdir
+}
+
+
+
 getPackages() {
 
     sudo pacman -Syu \
@@ -19,7 +74,9 @@ getPackages() {
     mutt \
     rclone \
     jq \
-    nmap 
+    nmap \
+    golang \
+    bazel
 }
 
 getZsh() {
@@ -55,25 +112,27 @@ cd
 procMsg "Updating and getting packages"
 getPackages
 
+procMsg "Feching Github repos"
+getRepos
 
 
 if ! [ -d ~/.oh-my-zsh ]
-then 
+then
     alarmMsg "Oh-my-zsh isn't setup yet"
     procMsg "Setting up Oh-my-zsh"
     getZsh
-else 
+else
     procMsg "Oh-My-Zsh OK!"
 fi
 
 if ! [ -d ~/.oh-my-zsh/plugins/zsh-syntax-highlighting ] \
 || ! [ -d ~/.oh-my-zsh/plugins/zsh-completions ] \
-|| ! [ -d ~/.oh-my-zsh/plugins/zsh-autosuggestions ] 
-then 
+|| ! [ -d ~/.oh-my-zsh/plugins/zsh-autosuggestions ]
+then
     alarmMsg "Zsh goodies aren't setup yet"
     procMsg "Setting up Zsh goodies"
     getZshGoodies
-else 
+else
     procMsg "Zsh goodies OK!"
 fi
 
@@ -83,7 +142,7 @@ then
     alarmMsg "Powerlevel10k isn't setup yet"
     procMsg "Setting up Powerlevel10k"
     getPowerlevel10k
-else 
+else
     procMsg "Powerlevel10k OK!"
 fi
 
