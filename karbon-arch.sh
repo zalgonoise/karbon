@@ -117,6 +117,24 @@ getTmux() {
     cp ${HOME}/.tmux/.tmux.conf.local ${HOME}/.
 }
 
+setupGo() {
+    if ! [[ -d /usr/local/go ]]
+    then
+        mkdir -p /usr/local/go/bin
+    fi
+
+    if [[ -z $(echo $PATH | grep '/usr/local/go/bin') ]]
+    then
+        sudo cat << EOF > /tmp/profile
+$(cat /etc/profile)
+export PATH=${PATH}:/usr/local/go/bin:$(go env GOPATH)/bin
+export GOPATH=$(go env GOPATH)
+EOF
+
+        sudo mv /tmp/profile /etc/profile
+    fi
+}
+
 getBazel() {
     go install github.com/bazelbuild/bazelisk@latest
 }
