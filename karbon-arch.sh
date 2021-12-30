@@ -76,6 +76,7 @@ getPackages() {
         "zsh"
         "openssh"
         "jq"
+        "fzf"
         "nmap"
         "go"
         "clang"
@@ -103,6 +104,10 @@ getPackages() {
         --upgrade \
         ${packages[@]} \
     && setShell
+
+    # install p10k from arch method
+    echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+
 
 }
 
