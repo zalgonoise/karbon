@@ -42,6 +42,12 @@ getRepos() {
         "labeld"
         "goauth-web"
         "goauth-cli"
+	    "gws-transfertool"
+	    "meta"
+	    "alpinedev"
+	    "gcc10-alpine-package"
+	    "hashclock"
+	    "bazel-docker"
     )
 
     curdir=`pwd`
@@ -50,7 +56,7 @@ getRepos() {
 
     for ((i=1 ; i<=${#repos[@]} ; i++))
     do
-        echo "Checking github.com/ZalgoNoise/${repos[i]}"
+        echo "Checking out github.com/ZalgoNoise/${repos[i]}"
         if ! [ -d "${HOME}/git/${repos[i]}" ]
         then
             git clone https://github.com/ZalgoNoise/${repos[i]} ${HOME}/git/${repos[i]}
@@ -64,38 +70,40 @@ getRepos() {
 
 
 getPackages() {
+    packages=(
+        "tmux"
+        "vim"
+        "zsh"
+        "openssh"
+        "jq"
+        "nmap"
+        "go"
+        "clang"
+        "python3"
+        "nodejs"
+        "npm"
+        "code"
+        "docker"
+        "docker-compose"
+        "chromium"
+        "oh-my-zsh"
+        "zsh-syntax-highlighting"
+        "zsh-completions"
+        "zsh-autosuggestions"
+        "ttf-meslo-nerd-font-powerlevel10k"
+        "zsh-theme-powerlevel10k"
+    )
 
-    sudo pacman -Syu \
-    git \
-    tmux \
-    vim \
-    zsh \
-    openssh \
-    mutt \
-    rclone \
-    jq \
-    nmap \
-    golang \
-    bazel \
-    clang
-}
+    sudo pamac remove \
+        liblrdf \
+        thunderbird
 
-getZsh() {
-    git clone https://github.com/robbyrussell/oh-my-zsh.git ${HOME}/.oh-my-zsh
-    cp ${HOME}/.oh-my-zsh/templates/zshrc.zsh-template ${HOME}/.zshrc
-    sudo chsh -s /bin/zsh ${USER}
-}
+    sudo pamac install \
+        --no-confirm \
+        --upgrade \
+        ${packages[@]} \
+    && setShell
 
-getZshGoodies() {
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${HOME}/.oh-my-zsh/plugins/zsh-syntax-highlighting" --depth 1
-    git clone https://github.com/zsh-users/zsh-completions.git "${HOME}/.oh-my-zsh/plugins/zsh-completions" --depth 1
-    git clone https://github.com/zsh-users/zsh-autosuggestions.git "${HOME}/.oh-my-zsh/plugins/zsh-autosuggestions/" --depth 1
-    sed -i -e "71s/[^[]*/plugins=(git zsh-syntax-highlighting zsh-completions zsh-autosuggestions)/g" ${HOME}/.zshrc
-}
-
-getPowerlevel10k() {
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-    sed -i -e "11s/[^[]*/ZSH_THEME=\"powerlevel10k\/powerlevel10k\"/g" ${HOME}/.zshrc
 }
 
 getVim() {
@@ -109,44 +117,20 @@ getTmux() {
     cp ${HOME}/.tmux/.tmux.conf.local ${HOME}/.
 }
 
+getBazel() {
+    go install github.com/bazelbuild/bazelisk@latest
+}
+
+setShell() {
+    chsh zalgo -s /bin/zsh
+}
+
 cd
 procMsg "Updating and getting packages"
 getPackages
 
 procMsg "Feching Github repos"
 getRepos
-
-
-if ! [ -d ~/.oh-my-zsh ]
-then
-    alarmMsg "Oh-my-zsh isn't setup yet"
-    procMsg "Setting up Oh-my-zsh"
-    getZsh
-else
-    procMsg "Oh-My-Zsh OK!"
-fi
-
-if ! [ -d ~/.oh-my-zsh/plugins/zsh-syntax-highlighting ] \
-|| ! [ -d ~/.oh-my-zsh/plugins/zsh-completions ] \
-|| ! [ -d ~/.oh-my-zsh/plugins/zsh-autosuggestions ]
-then
-    alarmMsg "Zsh goodies aren't setup yet"
-    procMsg "Setting up Zsh goodies"
-    getZshGoodies
-else
-    procMsg "Zsh goodies OK!"
-fi
-
-
-if ! [ `grep "powerlevel10k" ~/.zshrc` ]
-then
-    alarmMsg "Powerlevel10k isn't setup yet"
-    procMsg "Setting up Powerlevel10k"
-    getPowerlevel10k
-else
-    procMsg "Powerlevel10k OK!"
-fi
-
 
 if ! [ -d ~/.vim_runtime ]
 then
@@ -164,6 +148,15 @@ then
     getTmux
 else
     procMsg "Tmux OK!"
+fi
+
+if ! [[ $(which bazel) ]]
+then
+    alarmMsg "Bazel isn't setup yet"
+    procMsg "Setting up Bazel with Bazelisk"
+    getBazel
+else
+    procMsg "Bazel OK!"
 fi
 
 procMsg "All set up!"
